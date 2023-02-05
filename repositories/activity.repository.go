@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/satriyoaji/todolist-challenge-go/database"
@@ -40,6 +42,34 @@ func GetAll() (Response, error) {
 	res.Status = http.StatusOK
 	res.Message = "Success"
 	res.Data = arrayObj
+
+	return res, nil
+}
+
+func GetByID(id int) (Response, error) {
+	var obj models.Activity
+	var res Response
+
+	con := database.GetConnection()
+
+	sqlStatement := fmt.Sprintf("SELECT * FROM %s where activity_id = ?", tableName(), id)
+
+	rows, err := con.Query(sqlStatement)
+	defer rows.Close()
+
+	helpers.OutputPanicError(err)
+
+	err = rows.Scan(&obj.ActivityID, &obj.Email, &obj.Title, &obj.CreatedAt, &obj.UpdatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return res, errors.New("No data found by activity_id")
+		}
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Success"
+	res.Data = obj
 
 	return res, nil
 }
@@ -90,7 +120,7 @@ func Update(id int, title, email string) (Response, error) {
 
 	con := database.GetConnection()
 
-	sqlStatement := fmt.Sprintf("UPDATE %s set title = ?, email = ?, updated_at = ? WHERE id = ?", tableName())
+	sqlStatement := fmt.Sprintf("UPDATE %s set title = ?, email = ?, updated_at = ? WHERE activity_id = ?", tableName())
 	stmt, err := con.Prepare(sqlStatement)
 	if err != nil {
 		return res, err
@@ -118,7 +148,7 @@ func DeleteByID(id int) (Response, error) {
 
 	con := database.GetConnection()
 
-	sqlStatement := fmt.Sprintf("DELETE FROM %s WHERE id = ?", tableName())
+	sqlStatement := fmt.Sprintf("DELETE FROM %s WHERE activity_id = ?", tableName())
 	stmt, err := con.Prepare(sqlStatement)
 	if err != nil {
 		return res, err

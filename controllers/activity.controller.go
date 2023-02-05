@@ -18,6 +18,22 @@ func FetchActivities(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func FetchOne(c echo.Context) error {
+	id := c.Param("id")
+	int_id, err := strconv.Atoi(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	result, err := repositories.GetByID(int_id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
 func StoreActivity(c echo.Context) error {
 	title := c.FormValue("title")
 	email := c.FormValue("email")

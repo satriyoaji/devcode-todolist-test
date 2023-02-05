@@ -14,6 +14,7 @@ func Init() *echo.Echo {
 	})
 
 	e.GET("api/activity-groups", controllers.FetchActivities)
+	e.GET("api/activity-groups/:id", controllers.FetchOne)
 	e.POST("api/activity-groups", controllers.StoreActivity)
 	e.PUT("api/activity-groups/:id", controllers.UpdateAcitity)
 	e.DELETE("api/activity-groups/:id", controllers.DeleteActivity)
