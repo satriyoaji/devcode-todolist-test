@@ -13,11 +13,11 @@ func Init() *echo.Echo {
 		return context.String(http.StatusOK, "Health Check!")
 	})
 
-	e.GET("api/activity-groups", controllers.FetchActivities)
-	e.GET("api/activity-groups/:id", controllers.FetchOne)
-	e.POST("api/activity-groups", controllers.StoreActivity)
-	e.PUT("api/activity-groups/:id", controllers.UpdateAcitity)
-	e.DELETE("api/activity-groups/:id", controllers.DeleteActivity)
+	e.GET("activity-groups", controllers.FetchActivities)
+	e.GET("activity-groups/:id", controllers.FetchOneActivity)
+	e.POST("activity-groups", controllers.StoreActivity)
+	e.PUT("activity-groups/:id", controllers.UpdateActivity)
+	e.DELETE("activity-groups/:id", controllers.DeleteActivity)
 
 	e.GET("api/generate-hash/:password", controllers.GenerateHashPassword)
 	e.POST("api/login", controllers.ActionLogin)

@@ -16,7 +16,7 @@ func tableName() string {
 	return `activities`
 }
 
-func GetAll() (Response, error) {
+func GetAllActivities() (Response, error) {
 	var obj models.Activity
 	var arrayObj []models.Activity
 	var res Response
@@ -46,7 +46,7 @@ func GetAll() (Response, error) {
 	return res, nil
 }
 
-func GetByID(id int) (Response, error) {
+func GetActivityByID(id int) (Response, error) {
 	var obj models.Activity
 	var res Response
 
@@ -74,7 +74,7 @@ func GetByID(id int) (Response, error) {
 	return res, nil
 }
 
-func Create(title, email string) (Response, error) {
+func CreateActivity(title, email string) (Response, error) {
 	var res Response
 
 	v := validator.New()
@@ -115,7 +115,7 @@ func Create(title, email string) (Response, error) {
 	return res, nil
 }
 
-func Update(id int, title, email string) (Response, error) {
+func UpdateActivity(id int, title, email string) (Response, error) {
 	var res Response
 
 	con := database.GetConnection()
@@ -143,7 +143,7 @@ func Update(id int, title, email string) (Response, error) {
 	return res, nil
 }
 
-func DeleteByID(id int) (Response, error) {
+func DeleteActivityByID(id int) (Response, error) {
 	var res Response
 
 	con := database.GetConnection()

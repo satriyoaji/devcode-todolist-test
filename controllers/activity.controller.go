@@ -8,7 +8,7 @@ import (
 )
 
 func FetchActivities(c echo.Context) error {
-	result, err := repositories.GetAll()
+	result, err := repositories.GetAllActivities()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
@@ -18,13 +18,13 @@ func FetchActivities(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func FetchOne(c echo.Context) error {
+func FetchOneActivity(c echo.Context) error {
 	id := c.Param("id")
 	int_id, err := strconv.Atoi(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	result, err := repositories.GetByID(int_id)
+	result, err := repositories.GetActivityByID(int_id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
@@ -38,7 +38,7 @@ func StoreActivity(c echo.Context) error {
 	title := c.FormValue("title")
 	email := c.FormValue("email")
 
-	result, err := repositories.Create(title, email)
+	result, err := repositories.CreateActivity(title, email)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),
@@ -48,7 +48,7 @@ func StoreActivity(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func UpdateAcitity(c echo.Context) error {
+func UpdateActivity(c echo.Context) error {
 	id := c.Param("id")
 	int_id, err := strconv.Atoi(id)
 	if err != nil {
@@ -57,7 +57,7 @@ func UpdateAcitity(c echo.Context) error {
 	title := c.FormValue("title")
 	email := c.FormValue("email")
 
-	result, err := repositories.Update(int_id, title, email)
+	result, err := repositories.UpdateActivity(int_id, title, email)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -72,7 +72,7 @@ func DeleteActivity(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	result, err := repositories.DeleteByID(int_id)
+	result, err := repositories.DeleteActivityByID(int_id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
