@@ -3,7 +3,6 @@ package routes
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/satriyoaji/todolist-challenge-go/controllers"
-	"github.com/satriyoaji/todolist-challenge-go/middlewares"
 	"net/http"
 )
 
@@ -14,10 +13,10 @@ func Init() *echo.Echo {
 		return context.String(http.StatusOK, "Health Check!")
 	})
 
-	e.GET("api/activity-groups", controllers.FetchActivities, middlewares.IsAuthenticated)
-	e.POST("api/activity-groups", controllers.StoreActivity, middlewares.IsAuthenticated)
-	e.PUT("api/activity-groups/:id", controllers.UpdateAcitity, middlewares.IsAuthenticated)
-	e.DELETE("api/activity-groups/:id", controllers.DeleteActivity, middlewares.IsAuthenticated)
+	e.GET("api/activity-groups", controllers.FetchActivities)
+	e.POST("api/activity-groups", controllers.StoreActivity)
+	e.PUT("api/activity-groups/:id", controllers.UpdateAcitity)
+	e.DELETE("api/activity-groups/:id", controllers.DeleteActivity)
 
 	e.GET("api/generate-hash/:password", controllers.GenerateHashPassword)
 	e.POST("api/login", controllers.ActionLogin)
