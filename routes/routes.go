@@ -19,8 +19,14 @@ func Init() *echo.Echo {
 	e.PATCH("activity-groups/:id", controllers.UpdateActivity)
 	e.DELETE("activity-groups/:id", controllers.DeleteActivity)
 
-	e.GET("api/generate-hash/:password", controllers.GenerateHashPassword)
-	e.POST("api/login", controllers.ActionLogin)
+	e.GET("todo-items", controllers.FetchTodos)
+	e.GET("todo-items/:id", controllers.FetchOneTodo)
+	e.POST("todo-items", controllers.StoreTodo)
+	e.PATCH("todo-items/:id", controllers.UpdateTodo)
+	e.DELETE("todo-items/:id", controllers.DeleteTodo)
+
+	//e.GET("api/generate-hash/:password", controllers.GenerateHashPassword)
+	//e.POST("api/login", controllers.ActionLogin)
 
 	return e
 }

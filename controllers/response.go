@@ -5,9 +5,9 @@ import (
 )
 
 func ReturnErrorResponse(c echo.Context, code int, status string, err error) error {
-	return c.JSON(code, map[string]string{
+	return c.JSON(code, map[string]interface{}{
 		"status":  status,
 		"message": err.Error(),
-		"data":    "{}",
+		"data":    map[string]interface{}{},
 	})
 }

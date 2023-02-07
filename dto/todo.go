@@ -1,13 +1,12 @@
 package dto
 
-import "time"
-
-type Todo struct {
-	ID              int       `json:"id"`
-	ActivityGroupID int       `json:"activity_group_id"`
-	Title           string    `json:"title" validate:"required"`
-	Priority        string    `json:"priority" validate:"required"`
-	IsActive        bool      `json:"is_active" validate:"required"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+type CreateTodoPayload struct {
+	Title           string `json:"title" validate:"required" binding:"required"`
+	ActivityGroupID int    `json:"activity_group_id" validate:"required,numeric" binding:"required,numeric"`
+	IsActive        *bool  `json:"is_active" validate:"required,boolean" binding:"required,boolean"`
+}
+type UpdateTodoPayload struct {
+	Title    string `json:"title" validate:"required" binding:"required"`
+	Priority string `json:"priority" validate:"required" binding:"required"`
+	IsActive *bool  `json:"is_active" validate:"required,boolean" binding:"required,boolean"`
 }
