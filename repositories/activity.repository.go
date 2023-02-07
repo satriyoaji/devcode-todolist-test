@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"github.com/satriyoaji/todolist-challenge-go/constants"
 	"github.com/satriyoaji/todolist-challenge-go/database"
 	"github.com/satriyoaji/todolist-challenge-go/helpers"
 	"github.com/satriyoaji/todolist-challenge-go/models"
-	"net/http"
 	"time"
 )
 
@@ -18,7 +18,7 @@ func tableName() string {
 
 func GetAllActivities() (Response, error) {
 	var obj models.Activity
-	var arrayObj []models.Activity
+	arrayObj := []models.Activity{}
 	var res Response
 
 	con := database.GetConnection()
@@ -31,7 +31,7 @@ func GetAllActivities() (Response, error) {
 	helpers.OutputPanicError(err)
 
 	for rows.Next() {
-		err = rows.Scan(&obj.ActivityID, &obj.Email, &obj.Title, &obj.CreatedAt, &obj.UpdatedAt)
+		err = rows.Scan(&obj.ID, &obj.Email, &obj.Title, &obj.CreatedAt, &obj.UpdatedAt)
 		if err != nil {
 			return res, err
 		}
@@ -39,37 +39,44 @@ func GetAllActivities() (Response, error) {
 		arrayObj = append(arrayObj, obj)
 	}
 
-	res.Status = http.StatusOK
+	res.Status = constants.SuccessStatus
 	res.Message = "Success"
 	res.Data = arrayObj
 
 	return res, nil
 }
 
+func findByID(con *sql.DB, id int, obj models.Activity) (res Response, err error) {
+	sqlStatementFind := fmt.Sprintf("SELECT * FROM %s where id = ?", tableName())
+	rows := con.QueryRow(sqlStatementFind, id)
+	err = rows.Scan(&obj.ID, &obj.Email, &obj.Title, &obj.CreatedAt, &obj.UpdatedAt)
+	res.Data = obj
+	if err != nil {
+		if err == sql.ErrNoRows {
+			res.Status = constants.NotFoundStatus
+			res.Message = fmt.Sprintf("Activity with ID %d not found!", id)
+			res.Data = map[string]string{}
+			return res, errors.New("not_found")
+		}
+		res.Status = constants.ServerErrorStatus
+		res.Message = err.Error()
+		return res, err
+	}
+	res.Status = constants.SuccessStatus
+	res.Message = fmt.Sprintf("Success get Activity with ID %d", id)
+	return res, nil
+}
+
 func GetActivityByID(id int) (Response, error) {
 	var obj models.Activity
 	var res Response
-
 	con := database.GetConnection()
 
-	sqlStatement := fmt.Sprintf("SELECT * FROM %s where activity_id = ?", tableName(), id)
-
-	rows, err := con.Query(sqlStatement)
-	defer rows.Close()
-
-	helpers.OutputPanicError(err)
-
-	err = rows.Scan(&obj.ActivityID, &obj.Email, &obj.Title, &obj.CreatedAt, &obj.UpdatedAt)
+	res, err := findByID(con, id, obj)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return res, errors.New("No data found by activity_id")
-		}
 		return res, err
 	}
-
-	res.Status = http.StatusOK
 	res.Message = "Success"
-	res.Data = obj
 
 	return res, nil
 }
@@ -92,7 +99,7 @@ func CreateActivity(title, email string) (Response, error) {
 
 	con := database.GetConnection()
 
-	sqlStatement := fmt.Sprintf("INSERT %s (title, email, phone) VALUES (?,?,?)", tableName())
+	sqlStatement := fmt.Sprintf("INSERT %s (title, email) VALUES (?,?)", tableName())
 	stmt, err := con.Prepare(sqlStatement)
 	if err != nil {
 		return res, err
@@ -106,49 +113,56 @@ func CreateActivity(title, email string) (Response, error) {
 		return res, err
 	}
 
-	res.Status = http.StatusOK
-	res.Message = "Successfully created"
-	res.Data = map[string]int64{
-		"last_inserted_id": lastInsertedId,
+	var resultActivity models.Activity
+	res, err = findByID(con, int(lastInsertedId), resultActivity)
+	if err != nil {
+		return res, err
 	}
+	res.Message = "Successfully created"
 
 	return res, nil
 }
 
-func UpdateActivity(id int, title, email string) (Response, error) {
+func UpdateActivity(id int, title string) (Response, error) {
 	var res Response
 
 	con := database.GetConnection()
 
-	sqlStatement := fmt.Sprintf("UPDATE %s set title = ?, email = ?, updated_at = ? WHERE activity_id = ?", tableName())
+	sqlStatement := fmt.Sprintf("UPDATE %s set title = ?, updated_at = ? WHERE id = ?", tableName())
 	stmt, err := con.Prepare(sqlStatement)
 	if err != nil {
 		return res, err
 	}
-	result, err := stmt.Exec(title, email, time.Now(), id)
+	result, err := stmt.Exec(title, time.Now(), id)
 	if err != nil {
 		return res, err
 	}
-	rowsAffected, err := result.RowsAffected()
+	_, err = result.RowsAffected()
 	if err != nil {
 		return res, err
 	}
 
-	res.Status = http.StatusOK
-	res.Message = "Successfully updated"
-	res.Data = map[string]int64{
-		"rows_affected": rowsAffected,
+	var resultActivity models.Activity
+	res, err = findByID(con, id, resultActivity)
+	if err != nil {
+		return res, err
 	}
+	res.Message = "Successfully updated"
 
 	return res, nil
 }
 
 func DeleteActivityByID(id int) (Response, error) {
 	var res Response
-
 	con := database.GetConnection()
+	var obj models.Activity
 
-	sqlStatement := fmt.Sprintf("DELETE FROM %s WHERE activity_id = ?", tableName())
+	res, err := findByID(con, id, obj)
+	if err != nil {
+		return res, err
+	}
+
+	sqlStatement := fmt.Sprintf("DELETE FROM %s WHERE id = ?", tableName())
 	stmt, err := con.Prepare(sqlStatement)
 	if err != nil {
 		return res, err
@@ -157,16 +171,14 @@ func DeleteActivityByID(id int) (Response, error) {
 	if err != nil {
 		return res, err
 	}
-	rowsAffected, err := result.RowsAffected()
+	_, err = result.RowsAffected()
 	if err != nil {
 		return res, err
 	}
 
-	res.Status = http.StatusOK
+	res.Status = constants.SuccessStatus
 	res.Message = "Successfully deleted"
-	res.Data = map[string]int64{
-		"rows_affected": rowsAffected,
-	}
+	res.Data = map[string]string{}
 
 	return res, nil
 }

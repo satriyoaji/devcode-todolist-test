@@ -16,7 +16,7 @@ func Init() *echo.Echo {
 	e.GET("activity-groups", controllers.FetchActivities)
 	e.GET("activity-groups/:id", controllers.FetchOneActivity)
 	e.POST("activity-groups", controllers.StoreActivity)
-	e.PUT("activity-groups/:id", controllers.UpdateActivity)
+	e.PATCH("activity-groups/:id", controllers.UpdateActivity)
 	e.DELETE("activity-groups/:id", controllers.DeleteActivity)
 
 	e.GET("api/generate-hash/:password", controllers.GenerateHashPassword)
