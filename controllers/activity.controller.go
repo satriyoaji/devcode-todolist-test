@@ -42,7 +42,7 @@ func StoreActivity(c echo.Context) error {
 		return ReturnErrorResponse(c, http.StatusInternalServerError, constants.ServerErrorStatus, err)
 	}
 	if err := c.Validate(&payload); err != nil {
-		return ReturnErrorResponse(c, http.StatusBadRequest, constants.BadRequestStatus, err)
+		return ReturnFirstErrorValidation(c, http.StatusBadRequest, constants.BadRequestStatus, err)
 	}
 
 	result, err := repositories.CreateActivity(payload.Title, payload.Email)
@@ -50,7 +50,7 @@ func StoreActivity(c echo.Context) error {
 		return ReturnErrorResponse(c, http.StatusInternalServerError, constants.ServerErrorStatus, err)
 	}
 
-	return c.JSON(http.StatusOK, result)
+	return c.JSON(http.StatusCreated, result)
 }
 
 func UpdateActivity(c echo.Context) error {
@@ -60,7 +60,7 @@ func UpdateActivity(c echo.Context) error {
 		return ReturnErrorResponse(c, http.StatusInternalServerError, constants.ServerErrorStatus, err)
 	}
 	if err := c.Validate(&payload); err != nil {
-		return ReturnErrorResponse(c, http.StatusBadRequest, constants.BadRequestStatus, err)
+		return ReturnFirstErrorValidation(c, http.StatusBadRequest, constants.BadRequestStatus, err)
 	}
 
 	id := c.Param("id")

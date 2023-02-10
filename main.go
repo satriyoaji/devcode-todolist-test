@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/go-playground/validator/v10"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/satriyoaji/todolist-challenge-go/config"
 	"github.com/satriyoaji/todolist-challenge-go/database"
 	"github.com/satriyoaji/todolist-challenge-go/routes"

@@ -31,7 +31,7 @@ func GetAllActivities() (Response, error) {
 	helpers.OutputPanicError(err)
 
 	for rows.Next() {
-		err = rows.Scan(&obj.ID, &obj.Email, &obj.Title, &obj.CreatedAt, &obj.UpdatedAt)
+		err = rows.Scan(&obj.ID, &obj.Title, &obj.Email, &obj.CreatedAt, &obj.UpdatedAt)
 		if err != nil {
 			return res, err
 		}
@@ -49,12 +49,12 @@ func GetAllActivities() (Response, error) {
 func findActivityByID(con *sql.DB, id int, obj models.Activity) (res Response, err error) {
 	sqlStatementFind := fmt.Sprintf("SELECT * FROM %s where id = ?", tableNameActivities())
 	rows := con.QueryRow(sqlStatementFind, id)
-	err = rows.Scan(&obj.ID, &obj.Email, &obj.Title, &obj.CreatedAt, &obj.UpdatedAt)
+	err = rows.Scan(&obj.ID, &obj.Title, &obj.Email, &obj.CreatedAt, &obj.UpdatedAt)
 	res.Data = obj
 	if err != nil {
 		if err == sql.ErrNoRows {
 			res.Status = constants.NotFoundStatus
-			res.Message = fmt.Sprintf("Activity with ID %d not found!", id)
+			res.Message = fmt.Sprintf("Activity with ID %d %s", id, constants.NotFoundStatus)
 			res.Data = map[string]string{}
 			return res, errors.New("not_found")
 		}
@@ -85,11 +85,12 @@ func CreateActivity(title, email string) (Response, error) {
 	var res Response
 
 	v := validator.New()
+	now := time.Now()
 	activityStruct := models.Activity{
 		Title:     title,
 		Email:     email,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: &now,
+		UpdatedAt: &now,
 	}
 	// validation input
 	err := v.Struct(activityStruct)

@@ -63,7 +63,7 @@ func findTodoByID(con *sql.DB, id int, obj models.Todo) (res Response, err error
 	if err != nil {
 		if err == sql.ErrNoRows {
 			res.Status = constants.NotFoundStatus
-			res.Message = fmt.Sprintf("Todo with ID %d not found!", id)
+			res.Message = fmt.Sprintf("Todo with ID %d %s", id, constants.NotFoundStatus)
 			res.Data = map[string]string{}
 			return res, errors.New("not_found")
 		}
@@ -94,13 +94,14 @@ func CreateTodo(title string, activityGroupID int, isActive bool) (Response, err
 	var res Response
 
 	v := validator.New()
+	now := time.Now()
 	todoStruct := models.Todo{
 		ActivityGroupID: activityGroupID,
 		Title:           title,
 		IsActive:        isActive,
 		Priority:        "very-high",
-		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
+		CreatedAt:       &now,
+		UpdatedAt:       &now,
 	}
 	// validation input
 	err := v.Struct(todoStruct)

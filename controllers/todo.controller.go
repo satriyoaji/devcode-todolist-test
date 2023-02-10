@@ -44,9 +44,13 @@ func StoreTodo(c echo.Context) error {
 		return ReturnErrorResponse(c, http.StatusInternalServerError, constants.ServerErrorStatus, err)
 	}
 	if err := c.Validate(&payload); err != nil {
-		return ReturnErrorResponse(c, http.StatusBadRequest, constants.BadRequestStatus, err)
+		return ReturnFirstErrorValidation(c, http.StatusBadRequest, constants.BadRequestStatus, err)
 	}
 
+	if payload.IsActive == nil {
+		trueValue := true
+		payload.IsActive = &trueValue
+	}
 	result, err := repositories.CreateTodo(payload.Title, payload.ActivityGroupID, *payload.IsActive)
 	if err != nil {
 		if err.Error() == "not_found" {
@@ -55,7 +59,7 @@ func StoreTodo(c echo.Context) error {
 		return ReturnErrorResponse(c, http.StatusInternalServerError, constants.ServerErrorStatus, err)
 	}
 
-	return c.JSON(http.StatusOK, result)
+	return c.JSON(http.StatusCreated, result)
 }
 
 func UpdateTodo(c echo.Context) error {
@@ -65,7 +69,7 @@ func UpdateTodo(c echo.Context) error {
 		return ReturnErrorResponse(c, http.StatusInternalServerError, constants.ServerErrorStatus, err)
 	}
 	if err := c.Validate(&payload); err != nil {
-		return ReturnErrorResponse(c, http.StatusBadRequest, constants.BadRequestStatus, err)
+		return ReturnFirstErrorValidation(c, http.StatusBadRequest, constants.BadRequestStatus, err)
 	}
 
 	id := c.Param("id")
@@ -74,6 +78,10 @@ func UpdateTodo(c echo.Context) error {
 		return ReturnErrorResponse(c, http.StatusInternalServerError, constants.ServerErrorStatus, err)
 	}
 
+	if payload.IsActive == nil {
+		trueValue := true
+		payload.IsActive = &trueValue
+	}
 	result, err := repositories.UpdateTodo(int_id, *payload.IsActive, payload.Title, payload.Priority)
 	if err != nil {
 		if err.Error() == "not_found" {
