@@ -6,7 +6,7 @@ type CreateTodoPayload struct {
 	IsActive        *bool  `json:"is_active" validate:"" binding:""`
 }
 type UpdateTodoPayload struct {
-	Title    string `json:"title" validate:"required" binding:"required"`
+	Title    string `json:"title" validate:"" binding:""`
 	Priority string `json:"priority" validate:"" binding:""`
 	IsActive *bool  `json:"is_active" validate:"" binding:""`
 }

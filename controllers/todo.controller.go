@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/satriyoaji/todolist-challenge-go/constants"
 	"github.com/satriyoaji/todolist-challenge-go/dto"
+	"github.com/satriyoaji/todolist-challenge-go/models"
 	"github.com/satriyoaji/todolist-challenge-go/repositories"
 	"net/http"
 	"strconv"
@@ -78,10 +80,25 @@ func UpdateTodo(c echo.Context) error {
 		return ReturnErrorResponse(c, http.StatusInternalServerError, constants.ServerErrorStatus, err)
 	}
 
-	if payload.IsActive == nil {
-		trueValue := true
-		payload.IsActive = &trueValue
+	resultFind, err := repositories.GetTodoByID(int_id)
+	if err != nil {
+		if err.Error() == "not_found" {
+			return c.JSON(http.StatusNotFound, resultFind)
+		}
+		return ReturnErrorResponse(c, http.StatusInternalServerError, constants.ServerErrorStatus, err)
 	}
+
+	todoFind := resultFind.Data.(models.Todo)
+	if payload.IsActive == nil {
+		payload.IsActive = &todoFind.IsActive
+	}
+	if payload.Title == "" {
+		payload.Title = todoFind.Title
+	}
+	if payload.Priority == "" {
+		payload.Priority = "very-high"
+	}
+	fmt.Println("Payload: ", payload)
 	result, err := repositories.UpdateTodo(int_id, *payload.IsActive, payload.Title, payload.Priority)
 	if err != nil {
 		if err.Error() == "not_found" {
