@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/satriyoaji/todolist-challenge-go/constants"
 	"github.com/satriyoaji/todolist-challenge-go/dto"
@@ -98,7 +97,6 @@ func UpdateTodo(c echo.Context) error {
 	if payload.Priority == "" {
 		payload.Priority = "very-high"
 	}
-	fmt.Println("Payload: ", payload)
 	result, err := repositories.UpdateTodo(int_id, *payload.IsActive, payload.Title, payload.Priority)
 	if err != nil {
 		if err.Error() == "not_found" {
